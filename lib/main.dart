@@ -20,13 +20,13 @@ class ALISViewer extends StatelessWidget {
         // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'ALIS Editor Home Page'),
+      home: new PopularArticlesPage(title: 'ALIS Editor Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class PopularArticlesPage extends StatefulWidget {
+  PopularArticlesPage({Key key, this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -40,10 +40,10 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  _PopularArticlesPageState createState() => new _PopularArticlesPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _PopularArticlesPageState extends State<PopularArticlesPage> {
   List<Article> _items = [];
   ArticleClient articleClient = new ArticleClient();
 
