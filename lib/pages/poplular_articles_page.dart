@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../http/article.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PopularArticlesPage extends StatefulWidget {
   PopularArticlesPage({Key key, this.title}) : super(key: key);
@@ -34,6 +35,14 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
       child: const Text('No content.'),
     )
   ]));
+
+  _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
 
   void _loadArticles() async {
     setState(() {
@@ -116,7 +125,7 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
 
     Widget cardMainArea = GestureDetector(
       onTap: () {
-        print('https://alis.to/$userId/articles/$articleId');
+        this._launchURL('https://alis.to/$userId/articles/$articleId');
       },
       child: new Column(children: <Widget>[
         new ClipRRect(
