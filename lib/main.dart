@@ -47,6 +47,16 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Article> _items = [];
   ArticleClient articleClient = new ArticleClient();
 
+  final Widget blankBody = new Center(
+    child: ListView(
+      children: <Widget>[
+        new Center(
+          child: const Text('No content.'),
+        )
+      ]
+    )
+  );
+
   void _loadArticles() async {
     setState(() {
       _items = [];
@@ -107,33 +117,25 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget _createBody(List<Article> items) {
+    List<Widget> itemCardList = [];
+    if (items == null || items.length == 0) {
+      return this.blankBody;
+    }
+    itemCardList = this._items.map((item) => _createCard(item)).toList();
+    return new Center(
+      child:
+        ListView(
+          padding: new EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0, bottom: 20.0),
+          children: itemCardList
+        )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-
     List<Widget> itemCardList = [];
-    Widget body = new Center(
-      child: ListView(
-        children: <Widget>[
-          new Center(
-            child: const Text('No content.'),
-          )
-        ]
-      )
-    );
-
-    if (this._items != null && this._items.length > 0) {
-      itemCardList = this._items.map((item) => _createCard(item)).toList();
-    }
-
-    if (itemCardList.length > 0) {
-      body = new Center(
-        child:
-          ListView(
-            padding: new EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0, bottom: 20.0),
-            children: itemCardList
-          )
-      );
-    }
+    Widget body = this._createBody(this._items);
 
     return new Scaffold(
       appBar: new AppBar(
