@@ -1,38 +1,14 @@
-import 'dart:async';
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import './entities/article.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(new ALISViewer());
 
-class Article {
-  final String articleId;
-  final String eyeCatchUrl;
-  final String title;
-  final String overview;
-  final int articleScore;
-
-  Article({this.articleId, this.eyeCatchUrl, this.title, this.overview, this.articleScore});
-
-  factory Article.fromJson(Map<String, dynamic> json) {
-    return Article(
-      articleId: json['article_id'],
-      eyeCatchUrl: json['eye_catch_url'],
-      title: json['title'],
-      overview: json['overview'],
-      articleScore: json['article_score'],
-    );
-  }
-}
-
-class ArticleResponse {}
-
-class MyApp extends StatelessWidget {
+class ALISViewer extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Demo',
+      title: 'ALIS Editor',
       theme: new ThemeData(
         // This is the theme of your application.
         //
@@ -44,7 +20,7 @@ class MyApp extends StatelessWidget {
         // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'Flutter Demo Home Page'),
+      home: new MyHomePage(title: 'ALIS Editor Home Page'),
     );
   }
 }
@@ -68,36 +44,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   List<Article> _items = [];
-
+  ArticleClient articleClient = new ArticleClient();
 
   void _loadArticles() async {
     setState(() {
       _items = [];
     });
-    List<Article> items = [];
-    final response = await http.get(
-        'https://alis.to/api/articles/popular?topic=crypto&limit=10&page=1');
-    if (response.statusCode == 200) {
-      // If the call to the server was successful, parse the JSON
-      List<dynamic> _rawItems = json.decode(response.body)['Items'];
-      _rawItems.forEach((f) {
-        if (f != null) {
-          var item = Article.fromJson(f);
-          if (item != null) {
-            print(item);
-            items.add(item);
-          }
-        }
-      });
-      print('items');
-    } else {
-      // If that call was not successful, throw an error.
-      throw Exception('Failed to load post');
+
+    try {
+      await articleClient.fetchPopularArticles();
+    } catch(e) {
+
     }
     setState(() {
-      _items = items;
+      _items = articleClient.items;
     });
   }
 
@@ -148,36 +109,28 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
 
-    var children = null;
+    List<Widget> itemCardList = [];
+    Widget body = new Center(
+      child: ListView(
+        children: <Widget>[
+          new Center(
+            child: const Text('No content.'),
+          )
+        ]
+      )
+    );
+
     if (this._items != null && this._items.length > 0) {
-      children = this._items.map((item) {
-        print(item);
-        return new Padding(
-          padding: new EdgeInsets.only(left: 20.0, right: 20.0, top: 10.0, bottom: 10.0),
-          child: _createCard(item)
-        );
-      }).toList();
+      itemCardList = this._items.map((item) => _createCard(item)).toList();
     }
 
-    var body = new Center(
-      child: const Text('No content.'),
-    );
-    if (children != null) {
+    if (itemCardList.length > 0) {
       body = new Center(
         child:
           ListView(
             padding: new EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0, bottom: 20.0),
-            children: List.generate(
-              this._items.length,
-              (i) => _createCard(this._items[i])
-            )
+            children: itemCardList
           )
       );
     }
@@ -188,22 +141,11 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: new Color(0xFF454A74),
       ),
       body: body,
-      // body: new Center(
-      //   // Center is a layout widget. It takes a single child and positions it
-      //   // in the middle of the parent.
-      //   child: children != null ?
-      //     ListView(
-      //       children: List.generate(
-      //         this._items.length,
-      //         (i) => _createCard(this._items[i])
-      //       )
-      //     ) : <Widget>[],
-      // ),
       floatingActionButton: new FloatingActionButton(
         onPressed: _loadArticles,
         tooltip: 'Increment',
         child: new Icon(Icons.cloud_download),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 }
