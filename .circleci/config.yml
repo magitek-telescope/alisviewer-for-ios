@@ -7,9 +7,21 @@ jobs:
       - image: circleci/android:api-24-alpha
     steps:
       - checkout
+      - restore_cache:
+          keys:
+          - flutter-core
       - run:
           name: Install Flutter SDK
-          command: git clone -b beta https://github.com/flutter/flutter.git ~/flutter
+          command: |
+            if [ ! -e ~/flutter ]; then
+              wget https://storage.googleapis.com/flutter_infra/releases/beta/linux/flutter_linux_v0.7.3-beta.tar.xz
+              tar Jxfv flutter_linux_v0.7.3-beta.tar.xz
+              mv flutter ~/flutter
+            fi
+      - save_cache:
+          paths:
+            - ~/flutter
+          key: flutter-core
       - run:
           name: run tests
           command: ~/flutter/bin/flutter test
