@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../entities/article.dart';
+import '../http/article.dart';
 
 class PopularArticlesPage extends StatefulWidget {
   PopularArticlesPage({Key key, this.title}) : super(key: key);
@@ -37,7 +37,6 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
     setState(() {
       _items = [];
     });
-
     try {
       await articleClient.fetchPopularArticles();
     } catch(e) {
@@ -46,6 +45,60 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
     setState(() {
       _items = articleClient.items;
     });
+  }
+
+  Widget _createMockCard() {
+    var createMockText = ({double width, double height, double radius}) {
+      return new ClipRRect(
+        borderRadius: new BorderRadius.all(Radius.circular(radius)),
+        child: Container(width: width, height: height, color: new Color(0xFFE5E5E5))
+      );
+    };
+
+    return new Padding(
+      padding: EdgeInsets.symmetric(vertical: 10.0),
+      child: new Card(
+        child: new Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            new ClipRRect(
+              borderRadius: new BorderRadius.only(topLeft: Radius.circular(4.0), topRight: Radius.circular(4.0) ),
+              child: Container(width: double.infinity, height: 150.0, color: new Color(0xFFE5E5E5))
+            ),
+            new Padding(
+              padding: new EdgeInsets.symmetric(vertical: 8.0),
+              child: ListTile(
+                title: new Row(children: <Widget>[
+                  createMockText(width: 120.0, height: 18.0, radius: 4.0)
+                ],),
+                subtitle: Padding(
+                  padding: EdgeInsets.only(top: 12.0, bottom: 0.0),
+                  child: new Column(children: [
+                    createMockText(width: double.infinity, height: 14.0, radius: 4.0),
+                    Container(width: double.infinity, height: 14.0),
+                    createMockText(width: double.infinity, height: 14.0, radius: 4.0),
+                    Container(width: double.infinity, height: 14.0),
+                    createMockText(width: double.infinity, height: 14.0, radius: 4.0),
+                    Container(width: double.infinity, height: 14.0),
+                    createMockText(width: double.infinity, height: 14.0, radius: 4.0),
+                  ])
+                ),
+              )
+            ),
+            new Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                new Padding(
+                  padding: new EdgeInsets.only(bottom: 12.0),
+                  child: createMockText(width: 40.0, height: 12.0, radius: 4.0)
+                ),
+                new Container(width: 20.0),
+              ],
+            )
+          ],
+        )
+      )
+    );
   }
 
   Widget _createCard(Article item) {
@@ -95,15 +148,13 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
 
   Widget _createBody(List<Article> items) {
     List<Widget> itemCardList = [];
-    if (items == null || items.length == 0) {
-      return this.blankBody;
-    }
     itemCardList = this._items.map((item) => _createCard(item)).toList();
+
     return new Center(
       child:
         ListView(
           padding: new EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0, bottom: 20.0),
-          children: itemCardList
+          children: itemCardList.length > 0 ? itemCardList : List.generate(5, (i) => _createMockCard())
         )
     );
   }

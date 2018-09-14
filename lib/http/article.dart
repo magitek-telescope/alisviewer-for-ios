@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:async';
 import 'package:http/http.dart' as http;
-import '../http/client.dart';
+import './client.dart';
 
 class Article {
   final String articleId;
