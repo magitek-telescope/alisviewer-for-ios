@@ -4,16 +4,25 @@ import 'package:http/http.dart' as http;
 import './client.dart';
 
 class Article {
+  final String userId;
   final String articleId;
   final String eyeCatchUrl;
   final String title;
   final String overview;
   final int articleScore;
 
-  Article({this.articleId, this.eyeCatchUrl, this.title, this.overview, this.articleScore});
+  Article({
+    this.userId,
+    this.articleId,
+    this.eyeCatchUrl,
+    this.title,
+    this.overview,
+    this.articleScore
+  });
 
   factory Article.fromJson(Map<String, dynamic> json) {
     return Article(
+      userId: json['user_id'],
       articleId: json['article_id'],
       eyeCatchUrl: json['eye_catch_url'],
       title: json['title'],
