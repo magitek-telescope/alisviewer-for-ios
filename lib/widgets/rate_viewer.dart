@@ -1,19 +1,24 @@
-import 'dart:convert';
-import 'dart:async';
 import '../http/rate.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 class RateViewer extends StatefulWidget {
+  final Rate rate = new Rate();
   RateViewer();
-  Rate rate = new Rate();
 
   Rate getRate() {
     return this.rate;
   }
 
-  void setRate(Rate _rate) {
-    this.rate = _rate;
+  void setRateData({ double alisToJpy, double alisToBtc, double btcToJpy }) {
+    if (alisToJpy != null) {
+      rate.alisToJpy = alisToJpy;
+    }
+    if (alisToBtc != null) {
+      rate.alisToBtc = alisToBtc;
+    }
+    if (btcToJpy != null) {
+      rate.btcToJpy = btcToJpy;
+    }
   }
 
   @override
@@ -43,7 +48,11 @@ class _RateViewerState extends State<RateViewer> {
     if (btcToJpy != null) {
       rate.btcToJpy = btcToJpy;
     }
-    widget.setRate(_rate);
+    widget.setRateData(
+      alisToJpy: rate.alisToJpy,
+      alisToBtc: rate.alisToBtc,
+      btcToJpy: rate.btcToJpy
+    );
     setState(() {
       rate = _rate;
     });

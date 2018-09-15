@@ -1,6 +1,4 @@
-import 'dart:convert';
 import 'package:test/test.dart';
-import 'package:http/http.dart' as http;
 import '../../lib/http/rate.dart';
 
 void main() {
