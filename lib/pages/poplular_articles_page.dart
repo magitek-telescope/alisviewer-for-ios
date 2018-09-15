@@ -86,7 +86,7 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
 
     return new Scaffold(
       appBar: new AppBar(
-        title: Image.network('https://i.imgur.com/JAumQrd.png'),
+        title: Image.network('https://i.imgur.com/JAumQrd.png', width: 40.0, height: 40.0),
         backgroundColor: new Color(0xFF454A74),
         elevation: 4.0,
         actions: <Widget>[
