@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:math' as Math;
 import 'package:flutter/material.dart';
 import '../http/article.dart';
 import '../widgets/article_card.dart';
 import '../widgets/topic_cards_section.dart';
+import '../widgets/rate_viewer.dart';
 import '../widgets/mock_card.dart';
 
 class PopularArticlesPage extends StatefulWidget {
@@ -15,6 +15,7 @@ class PopularArticlesPage extends StatefulWidget {
 
 class _PopularArticlesPageState extends State<PopularArticlesPage> {
   Widget _topicCardsSection;
+  Widget _rateViewer;
   List<Article> _items = [];
   ArticleClient _articleClient = new ArticleClient();
   List<String> topics = ['crypto', 'gourmet', 'gosyuin'];
@@ -59,7 +60,13 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
         Future.delayed(new Duration(milliseconds: 250)).then((_) {this._loadArticles();});
       },);
     }
+    // if (_rateViewer == null) {
+      _rateViewer = new RateViewer();
+      renderList.add(_rateViewer);
+      // _rateViewer = null;
+    // }
 
+    // renderList.add(_rateViewer);
     renderList.add(_topicCardsSection);
     renderList.addAll(getItemWidgets(this._items));
 
@@ -67,6 +74,7 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
       appBar: new AppBar(
         title: Image.network('https://i.imgur.com/JAumQrd.png'),
         backgroundColor: new Color(0xFF454A74),
+        elevation: 0.0,
       ),
       body: new Center(
         child: new RefreshIndicator(
