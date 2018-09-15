@@ -1,21 +1,14 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import '../http/article.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../http/article.dart';
+import '../http/url_opener.dart';
+import '../widgets/topic_card.dart';
+import '../widgets/mock_card.dart';
 
 class PopularArticlesPage extends StatefulWidget {
   PopularArticlesPage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
-
   @override
   _PopularArticlesPageState createState() => new _PopularArticlesPageState();
 }
@@ -24,24 +17,10 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
   List<Article> _items = [];
   ArticleClient articleClient = new ArticleClient();
 
-  initState() {
-    print('1');
+  @override
+  void initState() {
+    super.initState();
     this._loadArticles();
-  }
-
-  final Widget blankBody = new Center(
-      child: ListView(children: <Widget>[
-    new Center(
-      child: const Text('No content.'),
-    )
-  ]));
-
-  _launchURL(String url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
   }
 
   void _loadArticles() async {
@@ -49,71 +28,14 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
       _items = [];
     });
     try {
-      await articleClient.fetchPopularArticles();
+      await Future.wait([
+        articleClient.fetchPopularArticles(),
+        new Future.delayed(new Duration(milliseconds: 600))
+      ]);
     } catch (e) {}
     setState(() {
       _items = articleClient.items;
     });
-  }
-
-  Widget _createMockCard() {
-    var createMockText = ({double width, double height, double radius}) {
-      return new ClipRRect(
-          borderRadius: new BorderRadius.all(Radius.circular(radius)),
-          child: Container(
-              width: width, height: height, color: new Color(0xFFE5E5E5)));
-    };
-
-    return new Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.0),
-        child: new Card(
-            child: new Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            new ClipRRect(
-                borderRadius: new BorderRadius.only(
-                    topLeft: Radius.circular(4.0),
-                    topRight: Radius.circular(4.0)),
-                child: Container(
-                    width: double.infinity,
-                    height: 150.0,
-                    color: new Color(0xFFE5E5E5))),
-            new Padding(
-                padding: new EdgeInsets.symmetric(vertical: 8.0),
-                child: ListTile(
-                  title: new Row(
-                    children: <Widget>[
-                      createMockText(width: 120.0, height: 18.0, radius: 4.0)
-                    ],
-                  ),
-                  subtitle: Padding(
-                      padding: EdgeInsets.only(top: 12.0, bottom: 0.0),
-                      child: new Column(children: [
-                        createMockText(
-                            width: double.infinity, height: 14.0, radius: 4.0),
-                        Container(width: double.infinity, height: 14.0),
-                        createMockText(
-                            width: double.infinity, height: 14.0, radius: 4.0),
-                        Container(width: double.infinity, height: 14.0),
-                        createMockText(
-                            width: double.infinity, height: 14.0, radius: 4.0),
-                        Container(width: double.infinity, height: 14.0),
-                        createMockText(
-                            width: double.infinity, height: 14.0, radius: 4.0),
-                      ])),
-                )),
-            new Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                new Padding(
-                    padding: new EdgeInsets.only(bottom: 12.0),
-                    child:
-                        createMockText(width: 40.0, height: 12.0, radius: 4.0)),
-                new Container(width: 20.0),
-              ],
-            )
-          ],
-        )));
   }
 
   Widget _createCard(Article item) {
@@ -125,7 +47,7 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
 
     Widget cardMainArea = GestureDetector(
       onTap: () {
-        this._launchURL('https://alis.to/$userId/articles/$articleId');
+        UrlOpener().open('https://alis.to/$userId/articles/$articleId');
       },
       child: new Column(children: <Widget>[
         new ClipRRect(
@@ -158,7 +80,7 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
     );
 
     return new Padding(
-      padding: EdgeInsets.symmetric(vertical: 10.0),
+      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 8.0),
       child: new Card(
         child: new Column(
           mainAxisSize: MainAxisSize.min,
@@ -168,30 +90,53 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
     );
   }
 
-  Widget _createBody(List<Article> items) {
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> renderList = [];
     List<Widget> itemCardList = [];
     itemCardList = this._items.map((item) => _createCard(item)).toList();
 
-    return new Center(
-      child: ListView(
-        padding: new EdgeInsets.only(top: 20.0, left: 20.0, right: 20.0, bottom: 20.0),
-        children: itemCardList.length > 0
-                ? itemCardList
-                : List.generate(5, (i) => _createMockCard())
+    renderList.add(
+      new Container(
+        height: 240.0,
+        margin: EdgeInsets.only(bottom: 20.0, top: 10.0, right: 10.0),
+        child: new ListView(
+          scrollDirection: Axis.horizontal,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            TopicCard(imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/6bde5b03-68ee-4fe9-a3ee-36ddfbf48387.png',),
+            TopicCard(imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/e6290305-4311-4333-a6ba-979276ae5cb8.jpeg',),
+            TopicCard(imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/f59c2c6e-d77e-4e51-8dea-a020869ce46e.jpeg',),
+          ]
+        )
       )
     );
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    Widget body = this._createBody(this._items);
+    renderList.addAll(itemCardList.length > 0
+                        ? itemCardList
+                        : List.generate(5, (i) => new MockCard()));
 
     return new Scaffold(
       appBar: new AppBar(
         title: Image.network('https://i.imgur.com/JAumQrd.png'),
         backgroundColor: new Color(0xFF454A74),
       ),
-      body: body,
+
+      body: new Center(
+        child: new RefreshIndicator(
+          onRefresh: () async {
+            try {
+              this._loadArticles();
+            } catch(e) {}
+            return null;
+          },
+          child: new ListView(
+            scrollDirection: Axis.vertical,
+            padding: new EdgeInsets.only(top: 20.0, bottom: 20.0),
+            children: renderList
+          )
+        ),
+      ),
       floatingActionButton: new FloatingActionButton(
         onPressed: _loadArticles,
         tooltip: 'Increment',
