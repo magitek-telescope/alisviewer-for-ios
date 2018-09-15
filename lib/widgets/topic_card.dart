@@ -30,14 +30,14 @@ class TopicCard extends StatelessWidget {
     Widget titleBox = new ClipRRect(
       borderRadius: new BorderRadius.all(Radius.circular(4.0)),
       child: new Container(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
+        padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 30.0),
         decoration: new BoxDecoration(color: new Color(0xFFFFFFFF)),
         child: new Text(
           topicName,
           textAlign: TextAlign.center,
             style: new TextStyle(
-            fontSize: 18.0,
-            fontWeight: FontWeight.bold,
+            fontSize: 16.0,
+            fontWeight: FontWeight.w800,
             color: Colors.black,
           ),
         )
@@ -55,7 +55,7 @@ class TopicCard extends StatelessWidget {
           Positioned(child: new Container(
             decoration: shadow,
             child: titleBox
-          ), bottom: 10.0)
+          ), bottom: 20.0)
 
         ]
       )
