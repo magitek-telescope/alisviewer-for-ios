@@ -35,9 +35,29 @@ class Article {
 class ArticleClient extends APIClient {
   List<Article> items = [];
 
-  Future<void> fetchPopularArticles(String topic) async {
+  Future<void> fetchPopularArticles({ String topic, int page=1}) async {
     List<Article> items = [];
-    final String url = createURL('/articles/popular?topic=$topic&limit=10&page=1');
+    final String url = createURL('/articles/popular?topic=$topic&limit=10&page=$page');
+    final response = await http.get(url);
+    if (response.statusCode == 200) {
+      List<dynamic> _rawItems = json.decode(response.body)['Items'];
+      _rawItems.forEach((f) {
+        if (f != null) {
+          var item = Article.fromJson(f);
+          if (item != null) {
+            items.add(item);
+          }
+        }
+      });
+      this.items = items;
+    } else {
+      throw Exception('Failed to load post');
+    }
+  }
+
+  Future<void> fetchRecentArticles({ String topic, int page=1}) async {
+    List<Article> items = [];
+    final String url = createURL('/articles/recent?topic=$topic&limit=10&page=$page');
     final response = await http.get(url);
     if (response.statusCode == 200) {
       List<dynamic> _rawItems = json.decode(response.body)['Items'];

@@ -54,7 +54,7 @@ class _TopicCardsViewState extends State<TopicCardsView> {
   Widget build(BuildContext context) {
     int topicOffset = widget.getTopicOffset();
     return new Container(
-      height: 270.0,
+      height: 230.0,
       margin: EdgeInsets.only(bottom: 0.0),
       child: GestureDetector(
         onHorizontalDragEnd: (data) {

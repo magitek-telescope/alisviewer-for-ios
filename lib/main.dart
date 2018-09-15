@@ -11,7 +11,7 @@ class ALISViewer extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new PopularArticlesPage(title: 'ALIS Editor Home Page'),
+      home: new PopularArticlesPage(),
     );
   }
 }

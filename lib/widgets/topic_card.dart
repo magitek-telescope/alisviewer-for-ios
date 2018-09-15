@@ -8,7 +8,7 @@ class TopicCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double height = 260.0;
+    final double height = 220.0;
     Widget coverImage = new ClipRRect(
       borderRadius: new BorderRadius.all(Radius.circular(0.0)),
       child: Image.network(

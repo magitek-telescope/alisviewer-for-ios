@@ -7,8 +7,7 @@ import '../widgets/rate_viewer.dart';
 import '../widgets/mock_card.dart';
 
 class PopularArticlesPage extends StatefulWidget {
-  PopularArticlesPage({Key key, this.title}) : super(key: key);
-  final String title;
+  PopularArticlesPage({Key key}) : super(key: key);
   @override
   _PopularArticlesPageState createState() => new _PopularArticlesPageState();
 }
@@ -20,6 +19,8 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
   ArticleClient _articleClient = new ArticleClient();
   List<String> topics = ['crypto', 'gourmet', 'gosyuin'];
   int topicOffset = 0;
+  int _page = 1;
+  String articleType = 'popular';
 
   @override
   void initState() {
@@ -32,10 +33,17 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
       _items = [];
     });
     try {
-      await Future.wait([
-        _articleClient.fetchPopularArticles(topics[topicOffset]),
-        new Future.delayed(new Duration(milliseconds: 600))
-      ]);
+      if (articleType == 'popular') {
+        await Future.wait([
+          _articleClient.fetchPopularArticles(topic: topics[topicOffset], page: _page),
+          new Future.delayed(new Duration(milliseconds: 600))
+        ]);
+      } else {
+        await Future.wait([
+          _articleClient.fetchRecentArticles(topic: topics[topicOffset], page: _page),
+          new Future.delayed(new Duration(milliseconds: 600))
+        ]);
+      }
     } catch (e) {}
     setState(() {
       _items = _articleClient.items;
@@ -46,6 +54,12 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
     List<Widget> itemCardList = [];
     itemCardList = items.map((item) => new ArticleCard(item: item)).toList();
     return itemCardList.length > 0 ? itemCardList : List.generate(5, (i) => new MockCard());
+  }
+
+  _toggleArticleType() {
+    articleType = articleType == 'popular' ? 'recent': 'popular';
+    _page = 1;
+    this._loadArticles();
   }
 
   @override
@@ -60,13 +74,13 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
         Future.delayed(new Duration(milliseconds: 250)).then((_) {this._loadArticles();});
       },);
     }
-    // if (_rateViewer == null) {
+    if (_rateViewer == null) {
       _rateViewer = new RateViewer();
       renderList.add(_rateViewer);
       // _rateViewer = null;
-    // }
+    }
 
-    // renderList.add(_rateViewer);
+    renderList.add(_rateViewer);
     renderList.add(_topicCardsSection);
     renderList.addAll(getItemWidgets(this._items));
 
@@ -74,7 +88,27 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
       appBar: new AppBar(
         title: Image.network('https://i.imgur.com/JAumQrd.png'),
         backgroundColor: new Color(0xFF454A74),
-        elevation: 0.0,
+        elevation: 4.0,
+        actions: <Widget>[
+          new Center(
+            child: new Container(
+              width: 30.0,
+              height: 30.0,
+              decoration: new BoxDecoration(
+                image: new DecorationImage(
+                  image: new NetworkImage('https://alis.to/d/api/info_icon/potato4d/icon/a2981d2a-67ec-4780-86bb-615e97572822.png')
+                ),
+                borderRadius: new BorderRadius.all(new Radius.circular(15.0)),
+              )
+            )
+          ),
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+
+            }
+          )
+        ],
       ),
       body: new Center(
         child: new RefreshIndicator(
@@ -91,11 +125,12 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
           )
         ),
       ),
-      // floatingActionButton: new FloatingActionButton(
-      //   onPressed: _loadArticles,
-      //   tooltip: 'Increment',
-      //   child: new Icon(Icons.cloud_download),
-      // ),
+      floatingActionButton: new FloatingActionButton(
+        onPressed: _toggleArticleType,
+        tooltip: 'Toggle',
+        backgroundColor: Color(0xFF858DDA),
+        child: articleType == 'popular' ? new Icon(Icons.list) : new Icon(Icons.trending_up),
+      ),
     );
   }
 }
