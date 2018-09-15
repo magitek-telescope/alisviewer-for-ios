@@ -1,8 +1,8 @@
 import 'dart:async';
+import 'dart:math' as Math;
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../http/article.dart';
-import '../http/url_opener.dart';
+import '../widgets/article_card.dart';
 import '../widgets/topic_card.dart';
 import '../widgets/mock_card.dart';
 
@@ -15,12 +15,16 @@ class PopularArticlesPage extends StatefulWidget {
 
 class _PopularArticlesPageState extends State<PopularArticlesPage> {
   List<Article> _items = [];
-  ArticleClient articleClient = new ArticleClient();
+  ArticleClient _articleClient = new ArticleClient();
+  List<String> topics = ['crypto', 'gourmet', 'gosyuin'];
+  ScrollController _scrollController;
+  int topicOffset = 0;
 
   @override
   void initState() {
     super.initState();
     this._loadArticles();
+    _scrollController = new ScrollController();
   }
 
   void _loadArticles() async {
@@ -29,85 +33,50 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
     });
     try {
       await Future.wait([
-        articleClient.fetchPopularArticles(),
+        _articleClient.fetchPopularArticles(topics[topicOffset]),
         new Future.delayed(new Duration(milliseconds: 600))
       ]);
     } catch (e) {}
     setState(() {
-      _items = articleClient.items;
+      _items = _articleClient.items;
     });
-  }
-
-  Widget _createCard(Article item) {
-    String title = item.title;
-    String overview = item.overview;
-    String userId = item.userId;
-    String articleId = item.articleId;
-    int score = item.articleScore;
-
-    Widget cardMainArea = GestureDetector(
-      onTap: () {
-        UrlOpener().open('https://alis.to/$userId/articles/$articleId');
-      },
-      child: new Column(children: <Widget>[
-        new ClipRRect(
-          borderRadius: new BorderRadius.only(topLeft: Radius.circular(4.0), topRight: Radius.circular(4.0)),
-          child: Image.network(item.eyeCatchUrl, width: double.infinity, height: 150.0, fit: BoxFit.cover)
-        ),
-        new Padding(
-          padding: new EdgeInsets.symmetric(vertical: 8.0),
-          child: ListTile(
-            title: Text('$title'),
-            subtitle: Padding(
-              padding: EdgeInsets.only(top: 12.0, bottom: 0.0),
-              child: Text('$overview……'),
-            ),
-          )
-        ),
-      ]),
-    );
-
-    Widget cardActionArea = new Row(
-      mainAxisAlignment: MainAxisAlignment.end,
-      children: <Widget>[
-        new Padding(
-            padding: new EdgeInsets.only(bottom: 12.0),
-            child: new Text('♥ $score',
-                textAlign: TextAlign.right,
-                style: new TextStyle(color: new Color(0xFFAAAAAA)))),
-        new Container(width: 20.0),
-      ],
-    );
-
-    return new Padding(
-      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 8.0),
-      child: new Card(
-        child: new Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[cardMainArea, cardActionArea],
-        )
-      )
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     List<Widget> renderList = [];
     List<Widget> itemCardList = [];
-    itemCardList = this._items.map((item) => _createCard(item)).toList();
+    itemCardList = this._items.map((item) => new ArticleCard(item: item)).toList();
 
     renderList.add(
       new Container(
         height: 240.0,
         margin: EdgeInsets.only(bottom: 20.0, top: 10.0, right: 10.0),
-        child: new ListView(
-          scrollDirection: Axis.horizontal,
-          physics: const NeverScrollableScrollPhysics(),
-          children: [
-            TopicCard(imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/6bde5b03-68ee-4fe9-a3ee-36ddfbf48387.png',),
-            TopicCard(imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/e6290305-4311-4333-a6ba-979276ae5cb8.jpeg',),
-            TopicCard(imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/f59c2c6e-d77e-4e51-8dea-a020869ce46e.jpeg',),
-          ]
+        child: GestureDetector(
+          onHorizontalDragEnd: (data) {
+            if (data.velocity.pixelsPerSecond.dx > 500) {
+              topicOffset = Math.max(topicOffset - 1, 0);
+            } else if(data.velocity.pixelsPerSecond.dx < -500) {
+              topicOffset = Math.min(topicOffset + 1, 2);
+            }
+            _scrollController.animateTo(
+              topicOffset * MediaQuery.of(context).size.width - (10.0 * topicOffset),
+              duration: new Duration(milliseconds: 300),
+              curve: Curves.ease
+            );
+            Future.delayed(new Duration(milliseconds: 300)).then((_) {this._loadArticles();});
+            return;
+          },
+          child: new ListView(
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              TopicCard(imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/6bde5b03-68ee-4fe9-a3ee-36ddfbf48387.png',),
+              TopicCard(imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/e6290305-4311-4333-a6ba-979276ae5cb8.jpeg',),
+              TopicCard(imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/f59c2c6e-d77e-4e51-8dea-a020869ce46e.jpeg',),
+            ]
+          ),
         )
       )
     );
