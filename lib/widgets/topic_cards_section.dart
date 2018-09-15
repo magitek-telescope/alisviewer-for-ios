@@ -14,6 +14,9 @@ class TopicOffsetHolder {
 class TopicCardsView extends StatefulWidget {
   final DoubleHolder offset = new DoubleHolder();
   final TopicOffsetHolder topicOffset = new TopicOffsetHolder();
+  final Function onChange;
+
+  TopicCardsView({ this.onChange });
 
   double getOffsetMethod() {
     return offset.value;
@@ -52,11 +55,10 @@ class _TopicCardsViewState extends State<TopicCardsView> {
   Widget build(BuildContext context) {
     int topicOffset = widget.getTopicOffset();
     return new Container(
-      height: 280.0,
+      height: 270.0,
       margin: EdgeInsets.only(bottom: 0.0),
       child: GestureDetector(
         onHorizontalDragEnd: (data) {
-          print('1');
           if (data.velocity.pixelsPerSecond.dx > 500) {
             if (topicOffset - 1 < 0) return;
             topicOffset = Math.max(topicOffset - 1, 0);
@@ -65,6 +67,9 @@ class _TopicCardsViewState extends State<TopicCardsView> {
             topicOffset = Math.min(topicOffset + 1, topics.length - 1);
           }
           widget.setTopicOffset(topicOffset);
+          if(widget.onChange != null) {
+            widget.onChange(topicOffset);
+          }
           _scrollController.animateTo(
             topicOffset * MediaQuery.of(context).size.width,
             duration: new Duration(milliseconds: 250),

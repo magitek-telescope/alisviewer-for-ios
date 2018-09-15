@@ -50,9 +50,15 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
   @override
   Widget build(BuildContext context) {
     List<Widget> renderList = [];
-    // if (_topicCardsSection == null) {
-      _topicCardsSection = new TopicCardsView();
-    // }
+    if (_topicCardsSection == null) {
+      _topicCardsSection = new TopicCardsView(onChange: (offset) {
+        print('hoge');
+        setState(() {
+          topicOffset = offset;
+        });
+        Future.delayed(new Duration(milliseconds: 250)).then((_) {this._loadArticles();});
+      },);
+    }
 
     renderList.add(_topicCardsSection);
     renderList.addAll(getItemWidgets(this._items));

@@ -55,7 +55,7 @@ class TopicCard extends StatelessWidget {
           Positioned(child: new Container(
             decoration: shadow,
             child: titleBox
-          ), bottom: 20.0)
+          ), bottom: 8.0)
 
         ]
       )
