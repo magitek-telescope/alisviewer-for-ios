@@ -50,21 +50,23 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
 
     renderList.add(
       new Container(
-        height: 240.0,
-        margin: EdgeInsets.only(bottom: 20.0, top: 10.0, right: 10.0),
+        height: 280.0,
+        margin: EdgeInsets.only(bottom: 0.0),
         child: GestureDetector(
           onHorizontalDragEnd: (data) {
             if (data.velocity.pixelsPerSecond.dx > 500) {
+              if (topicOffset - 1 < 0) return;
               topicOffset = Math.max(topicOffset - 1, 0);
             } else if(data.velocity.pixelsPerSecond.dx < -500) {
-              topicOffset = Math.min(topicOffset + 1, 2);
+              if (topicOffset + 1 >= topics.length) return;
+              topicOffset = Math.min(topicOffset + 1, topics.length - 1);
             }
             _scrollController.animateTo(
-              topicOffset * MediaQuery.of(context).size.width - (10.0 * topicOffset),
-              duration: new Duration(milliseconds: 300),
+              topicOffset * MediaQuery.of(context).size.width,
+              duration: new Duration(milliseconds: 250),
               curve: Curves.ease
             );
-            Future.delayed(new Duration(milliseconds: 300)).then((_) {this._loadArticles();});
+            Future.delayed(new Duration(milliseconds: 250)).then((_) {this._loadArticles();});
             return;
           },
           child: new ListView(
@@ -72,9 +74,18 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
             scrollDirection: Axis.horizontal,
             physics: const NeverScrollableScrollPhysics(),
             children: [
-              TopicCard(imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/6bde5b03-68ee-4fe9-a3ee-36ddfbf48387.png',),
-              TopicCard(imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/e6290305-4311-4333-a6ba-979276ae5cb8.jpeg',),
-              TopicCard(imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/f59c2c6e-d77e-4e51-8dea-a020869ce46e.jpeg',),
+              TopicCard(
+                topicName: 'クリプト',
+                imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/6bde5b03-68ee-4fe9-a3ee-36ddfbf48387.png'
+              ),
+              TopicCard(
+                topicName: 'グルメ',
+                imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/e6290305-4311-4333-a6ba-979276ae5cb8.jpeg'
+              ),
+              TopicCard(
+                topicName: '御朱印',
+                imageUrl: 'https://img.esa.io/uploads/production/attachments/4699/2018/09/15/11203/f59c2c6e-d77e-4e51-8dea-a020869ce46e.jpeg'
+              ),
             ]
           ),
         )
@@ -101,7 +112,7 @@ class _PopularArticlesPageState extends State<PopularArticlesPage> {
           },
           child: new ListView(
             scrollDirection: Axis.vertical,
-            padding: new EdgeInsets.only(top: 20.0, bottom: 20.0),
+            padding: new EdgeInsets.only(bottom: 20.0),
             children: renderList
           )
         ),
